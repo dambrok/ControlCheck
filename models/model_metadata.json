@@ -1,0 +1,47 @@
+{
+  "model_name": "dc_motor_control",
+  "version": "1.0.0",
+  "domain": "Electromechanical Speed Control",
+  "type": "Continuous State-Space with PID Feedback",
+  "parameters": {
+    "armature_resistance_ohms": 0.5,
+    "armature_inductance_henries": 0.02,
+    "motor_torque_constant_nm_per_a": 0.1,
+    "back_emf_constant_v_per_rad_s": 0.1,
+    "rotor_inertia_kg_m2": 0.01,
+    "viscous_damping_nm_s_per_rad": 0.005,
+    "voltage_saturation_limit_v": 24.0,
+    "drive_current_limit_a": 12.0
+  },
+  "default_pid_gains": {
+    "kp": 2.5,
+    "ki": 5.0,
+    "kd": 0.1
+  },
+  "inputs": [
+    {
+      "name": "Target_Speed",
+      "type": "Step Reference",
+      "unit": "rad/s",
+      "default": 100.0
+    },
+    {
+      "name": "Load_Torque",
+      "type": "Step Disturbance",
+      "unit": "N*m",
+      "default": 0.0
+    }
+  ],
+  "outputs": [
+    {
+      "name": "Motor_Speed_Out",
+      "unit": "rad/s",
+      "description": "Shaft angular velocity"
+    },
+    {
+      "name": "Armature_Current_Out",
+      "unit": "A",
+      "description": "Armature winding electrical current"
+    }
+  ]
+}

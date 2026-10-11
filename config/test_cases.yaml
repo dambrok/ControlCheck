@@ -1,0 +1,280 @@
+suite_name: "SimuVerify DC Motor Speed Control Test Suite"
+version: "1.0.0"
+description: "Comprehensive requirements-based validation scenarios for closed-loop DC motor speed regulation under nominal, boundary, and abnormal operational conditions."
+
+system_under_test:
+  name: "DC Motor Closed-Loop Speed Controller"
+  type: "Electromechanical PID Feedback System"
+  rated_voltage_v: 24.0
+  rated_speed_rad_s": 200.0
+  rated_current_a": 12.0
+
+test_cases:
+  - id: "TC-NOM-01"
+    name: "Nominal Step Response Without Load"
+    category: "nominal"
+    severity: "CRITICAL"
+    description: "Evaluates closed-loop step response to rated 100 rad/s setpoint under zero external mechanical load."
+    inputs:
+      target_speed: 100.0
+      load_torque: 0.0
+      load_step_time: 2.0
+      sim_time: 4.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 5.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.0
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 1.5
+      speed_tolerance_pct: 2.5
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 1.8
+      max_steady_state_error: 1.5
+      max_peak_current_a: 15.0
+
+  - id: "TC-NOM-02"
+    name: "Load Disturbance Rejection"
+    category: "nominal"
+    severity: "MAJOR"
+    description: "Applies a rated load torque disturbance (0.5 N*m) at t=2.0s to verify integral controller recovery."
+    inputs:
+      target_speed: 80.0
+      load_torque: 0.5
+      load_step_time: 2.0
+      sim_time: 4.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 80.0
+      max_overshoot_pct: 5.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.0
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 3.0
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 1.8
+      max_steady_state_error: 1.5
+      max_peak_current_a: 15.0
+
+  - id: "TC-NOM-03"
+    name: "Low-Speed Precision Regulation"
+    category: "nominal"
+    severity: "MINOR"
+    description: "Validates low-velocity tracking (25 rad/s) under light friction load (0.1 N*m)."
+    inputs:
+      target_speed: 25.0
+      load_torque: 0.1
+      load_step_time: 1.5
+      sim_time: 3.5
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 25.0
+      max_overshoot_pct: 5.0
+      max_settling_time_s: 1.0
+      max_steady_state_error: 0.8
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 1.0
+      speed_tolerance_pct: 4.0
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-BND-01"
+    name: "High-Speed Saturation Boundary"
+    category: "boundary"
+    severity: "MAJOR"
+    description: "Demands speed target near physical voltage limit (190 rad/s with 24V supply cap)."
+    inputs:
+      target_speed: 190.0
+      load_torque: 0.0
+      load_step_time: 2.0
+      sim_time: 4.5
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 190.0
+      max_overshoot_pct: 5.0
+      max_settling_time_s: 3.0
+      max_steady_state_error: 3.0
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 4.0
+      speed_tolerance_pct: 3.0
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 3.5
+      max_steady_state_error: 4.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-BND-02"
+    name: "High Rotor Inertia Boundary"
+    category: "boundary"
+    severity: "MAJOR"
+    description: "Simulates coupled mechanical load with 5x nominal rotor inertia (0.05 kg*m^2)."
+    inputs:
+      target_speed: 100.0
+      load_torque: 0.0
+      load_step_time: 2.0
+      sim_time: 7.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.05
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 5.0
+      max_settling_time_s: 4.5
+      max_steady_state_error: 1.5
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 3.0
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 5.0
+      max_steady_state_error: 2.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-FLT-01"
+    name: "Severe Overload Motor Stall (Intentional Failure)"
+    category: "fault_abnormal"
+    severity: "CRITICAL"
+    description: "Applies an extreme counter-torque (4.5 N*m) exceeding stall capacity to demonstrate failure reporting."
+    inputs:
+      target_speed: 100.0
+      load_torque: 4.5
+      load_step_time: 1.0
+      sim_time: 4.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 8.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.5
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 2.5
+      max_overshoot_pct: 10.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 2.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-FLT-02"
+    name: "Excessive Control Gain Overshoot (Intentional Failure)"
+    category: "fault_abnormal"
+    severity: "MAJOR"
+    description: "Injects aggressive integral gain (Ki=80.0, Kp=2.0) resulting in excessive overshoot (>4%)."
+    inputs:
+      target_speed: 100.0
+      load_torque: 0.0
+      load_step_time: 2.0
+      sim_time: 4.0
+      sample_time: 0.001
+      kp: 2.0
+      ki: 80.0
+      kd: 0.0
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 1.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.5
+      max_peak_current_a: 12.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 3.0
+      max_overshoot_pct: 2.0
+      max_settling_time_s: 2.0
+      max_steady_state_error: 2.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-ERR-01"
+    name: "Invalid Simulation Duration (Error Handling)"
+    category: "invalid_config"
+    severity: "MINOR"
+    description: "Injects negative simulation duration (-2.0s) to verify robust parameter sanitization."
+    inputs:
+      target_speed: 100.0
+      load_torque: 0.0
+      load_step_time: 1.0
+      sim_time: -2.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 10.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.5
+      max_peak_current_a: 15.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 2.5
+      max_overshoot_pct: 10.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 2.0
+      max_peak_current_a: 15.0
+
+  - id: "TC-ERR-02"
+    name: "Missing Required Parameter (Schema Validation)"
+    category: "invalid_config"
+    severity: "MINOR"
+    description: "Omits mandatory target_speed parameter from input payload to confirm schema validation catches configuration defects."
+    inputs:
+      load_torque: 0.0
+      load_step_time: 1.0
+      sim_time: 3.0
+      sample_time: 0.001
+      kp: 2.5
+      ki: 5.0
+      kd: 0.1
+      inertia: 0.01
+      friction: 0.005
+    expected:
+      steady_state_speed: 100.0
+      max_overshoot_pct: 10.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 1.5
+      max_peak_current_a: 15.0
+    acceptance_criteria:
+      speed_tolerance_abs: 2.0
+      speed_tolerance_pct: 2.5
+      max_overshoot_pct: 10.0
+      max_settling_time_s: 1.5
+      max_steady_state_error: 2.0
+      max_peak_current_a: 15.0
